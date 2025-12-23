@@ -175,10 +175,16 @@ function saveUsedTokens(arr) {
 }
 
 function consumeToken(token) {
-    // Validate token exists in the stored token list but do NOT remove it.
+    // Validate token exists in the stored token list and REMOVE it (single-use).
     if (!token) return false;
     const stored = getStoredTokens();
-    return stored.indexOf(token) !== -1;
+    const idx = stored.indexOf(token);
+    if (idx === -1) return false;
+    // remove token and persist
+    stored.splice(idx, 1);
+    saveStoredTokens(stored);
+    console.log('Token consumed:', token);
+    return true;
 }
 
 // Convenience: expose a loader for admins to preload tokens via console
@@ -219,7 +225,6 @@ function showAccessModal(used) {
         const val = input.value || '';
         // First check for static password (legacy)
         if (val === ACCESS.password) {
-            markAccessUsed();
             cleanup();
             modal.classList.add('hidden');
             App.init();
