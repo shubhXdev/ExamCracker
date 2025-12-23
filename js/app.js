@@ -3,11 +3,8 @@ const ACCESS = {
     // Change this value to the access password you want to require.
     // NOTE: Without a server this is enforced client-side only.
     password: '1122',
-    storageKey: 'exam_access_used_v1',
     // Optional: persistent token list key. Store a JSON array string in localStorage under this key to enable token auth.
-    tokensStorageKey: 'exam_token_list',
-    // Tracks tokens already consumed (used) so they cannot be reused on this browser.
-    usedTokensKey: 'exam_used_tokens'
+    tokensStorageKey: 'exam_token_list'
 };
 
 const App = {
@@ -151,13 +148,8 @@ const App = {
 
 // Start App
 
-function isAccessUsed() {
-    try { return localStorage.getItem(ACCESS.storageKey) === 'used'; } catch (e) { return false; }
-}
-
-function markAccessUsed() {
-    try { localStorage.setItem(ACCESS.storageKey, 'used'); } catch (e) { }
-}
+// Device-blocking by marking used in localStorage has been intentionally removed
+// so that an access code/token is required every time the site is opened.
 
 // Token helpers
 function getStoredTokens() {
@@ -174,32 +166,19 @@ function saveStoredTokens(arr) {
 }
 
 function getUsedTokens() {
-    try {
-        const raw = localStorage.getItem(ACCESS.usedTokensKey);
-        if (!raw) return [];
-        const arr = JSON.parse(raw);
-        return Array.isArray(arr) ? arr : [];
-    } catch (e) { return []; }
+    // kept for backwards compatibility but unused; tokens are not consumed client-side
+    return [];
 }
 
 function saveUsedTokens(arr) {
-    try { localStorage.setItem(ACCESS.usedTokensKey, JSON.stringify(arr)); } catch (e) { }
+    // no-op: we don't persist used tokens on device to force token entry every session
 }
 
 function consumeToken(token) {
+    // Validate token exists in the stored token list but do NOT remove it.
     if (!token) return false;
     const stored = getStoredTokens();
-    const used = getUsedTokens();
-    const idx = stored.indexOf(token);
-    if (idx === -1) return false; // not a valid token
-    // remove from stored and add to used
-    stored.splice(idx, 1);
-    used.push(token);
-    saveStoredTokens(stored);
-    saveUsedTokens(used);
-    // mark device as having used access (prevents re-entry if desired)
-    markAccessUsed();
-    return true;
+    return stored.indexOf(token) !== -1;
 }
 
 // Convenience: expose a loader for admins to preload tokens via console
@@ -270,12 +249,8 @@ function showAccessModal(used) {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
-    // If already used, block further access on this browser/device.
-    if (isAccessUsed()) {
-        showAccessModal(true);
-    } else {
-        showAccessModal(false);
-    }
+    // Always require access code every session — show modal unconditionally.
+    showAccessModal(false);
 });
 
 // Preload provided tokens (only if none are present).
