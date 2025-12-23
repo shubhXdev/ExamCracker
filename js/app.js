@@ -39,6 +39,43 @@ const App = {
             this.currentGame.init();
         });
 
+        // EXIT flow: double confirmation + motivational quote on second confirm
+        const quotes = [
+            "You are closer than you think — one more step matters.",
+            "Greatness is built from small consistent choices. Stay focused.",
+            "Finish strong — future you will thank you for not quitting.",
+            "A single question more could change everything. Keep going!",
+            "Courage is continuing even when it's hard. You've got this."
+        ];
+
+        document.getElementById('btn-exit').addEventListener('click', () => {
+            if (this.currentGame) this.currentGame.pauseTimer();
+            document.getElementById('confirm-exit-modal').classList.remove('hidden');
+        });
+
+        document.getElementById('exit-cancel').addEventListener('click', () => {
+            document.getElementById('confirm-exit-modal').classList.add('hidden');
+            if (this.currentGame) this.currentGame.resumeTimer();
+        });
+
+        document.getElementById('exit-yes').addEventListener('click', () => {
+            document.getElementById('confirm-exit-modal').classList.add('hidden');
+            const q = quotes[Math.floor(Math.random() * quotes.length)];
+            document.getElementById('final-quote').textContent = q;
+            document.getElementById('final-exit-modal').classList.remove('hidden');
+        });
+
+        document.getElementById('final-stay').addEventListener('click', () => {
+            document.getElementById('final-exit-modal').classList.add('hidden');
+            if (this.currentGame) this.currentGame.resumeTimer();
+        });
+
+        document.getElementById('final-exit').addEventListener('click', () => {
+            document.getElementById('final-exit-modal').classList.add('hidden');
+            // Force end the game and show results
+            if (this.currentGame) this.currentGame.endGame();
+        });
+
         document.getElementById('btn-replay').addEventListener('click', () => {
             this.showScreen('landing-screen');
         });
@@ -70,6 +107,18 @@ const App = {
     showResults(score, total) {
         this.showScreen('results-screen');
         document.getElementById('final-score').textContent = score;
+
+        // Bind PDF Button
+        const pdfBtn = document.getElementById('btn-download-pdf');
+        // Remove old listeners to avoid duplicates if replaying
+        const newPdfBtn = pdfBtn.cloneNode(true);
+        pdfBtn.parentNode.replaceChild(newPdfBtn, pdfBtn);
+
+        newPdfBtn.addEventListener('click', () => {
+            if (this.currentGame) {
+                this.currentGame.generatePDF();
+            }
+        });
 
         // Calculate mock rank based on score
         let rank = "Top 10%";
