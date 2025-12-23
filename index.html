@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shubham Exam Cracker - GK</title>
+    <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" href="./css/game.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@500;700&display=swap"
+        rel="stylesheet">
+
+    <!-- FIREBASE COMPAT SDKs (Required for file:// execution) -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+</head>
+
+<body>
+
+    <div id="app">
+        <!-- BACKGROUND PARTICLES -->
+        <div class="bg-grid"></div>
+
+        <!-- LANDING SCREEN -->
+        <section id="landing-screen" class="screen active">
+            <div class="logo-container">
+                <h2 class="sub-brand">SUBJECT : GK</h2>
+                <h1 class="main-brand glow">SHUBHAM<br>EXAM CRACKER</h1>
+            </div>
+
+            <div class="input-group">
+                <input type="text" id="username-input" placeholder="ENTER CODENAME" maxlength="12">
+                <button id="btn-enter" class="btn-primary">ENTER LOBBY</button>
+            </div>
+        </section>
+
+        <!-- LOBBY SCREEN -->
+        <section id="lobby-screen" class="screen hidden">
+            <div class="lobby-header">
+                <h3>LOBBY STATUS: <span class="status-live">LIVE</span></h3>
+                <div class="player-count">Players: <span id="lobby-count">112</span></div>
+            </div>
+
+            <div class="lobby-card">
+                <div class="user-profile">
+                    <div class="avatar">👤</div>
+                    <h2 id="display-name">PLAYER</h2>
+                </div>
+
+                <div class="lobby-actions">
+                    <button id="btn-invite" class="btn-secondary">🔗 INVITE FRIENDS</button>
+                    <button id="btn-start" class="btn-primary pulse">START EXAM</button>
+                </div>
+
+                <div class="lobby-tips">
+                    <p>TIP: Speed bonuses apply for answers under 10s!</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- GAME SCREEN -->
+        <section id="game-screen" class="screen hidden">
+            <div class="game-hud">
+                <div class="timer-container">
+                    <svg class="timer-ring" width="80" height="80">
+                        <circle class="timer-ring-circle" stroke="white" stroke-width="4" fill="transparent" r="35"
+                            cx="40" cy="40" />
+                    </svg>
+                    <span id="timer-text">30</span>
+                </div>
+                <div class="score-container">
+                    <span class="label">SCORE</span>
+                    <span id="current-score">0</span>
+                </div>
+            </div>
+
+            <div class="game-layout">
+                <div class="question-area">
+                    <div class="progress-bar">
+                        <div id="progress-fill"></div>
+                    </div>
+                    <h3 id="question-text">Loading Data...</h3>
+                    <div id="options-grid" class="options-grid">
+                        <!-- Options injected by JS -->
+                    </div>
+                </div>
+
+                <div class="leaderboard-sidebar">
+                    <h4>LIVE RANKING</h4>
+                    <ul id="live-leaderboard">
+                        <!-- Bots injected by JS -->
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- RESULTS SCREEN -->
+        <section id="results-screen" class="screen hidden">
+            <h1 class="result-title">EXAM COMPLETE</h1>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="label">FINAL SCORE</span>
+                    <span id="final-score" class="value">0</span>
+                </div>
+                <div class="stat-card">
+                    <span class="label">RANK</span>
+                    <span id="final-rank" class="value">#--</span>
+                </div>
+                <div class="stat-card">
+                    <span class="label">ACCURACY</span>
+                    <span id="final-accuracy" class="value">0%</span>
+                </div>
+            </div>
+
+            <button id="btn-replay" class="btn-primary">PLAY AGAIN</button>
+        </section>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="./js/data.js"></script>
+    <script src="./js/utils.js"></script>
+    <script src="./js/fire.js"></script>
+    <script src="./js/game.js"></script>
+    <script src="./js/app.js"></script>
+</body>
+
+</html>
