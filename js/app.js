@@ -1,3 +1,15 @@
+// Single-use access configuration (edit the `password` value as needed)
+const ACCESS = {
+    // Change this value to the access password you want to require.
+    // NOTE: Without a server this is enforced client-side only.
+    password: '1122',
+    storageKey: 'exam_access_used_v1',
+    // Optional: persistent token list key. Store a JSON array string in localStorage under this key to enable token auth.
+    tokensStorageKey: 'exam_token_list',
+    // Tracks tokens already consumed (used) so they cannot be reused on this browser.
+    usedTokensKey: 'exam_used_tokens'
+};
+
 const App = {
     currentGame: null,
     username: 'Player',
@@ -138,6 +150,164 @@ const App = {
 };
 
 // Start App
+
+function isAccessUsed() {
+    try { return localStorage.getItem(ACCESS.storageKey) === 'used'; } catch (e) { return false; }
+}
+
+function markAccessUsed() {
+    try { localStorage.setItem(ACCESS.storageKey, 'used'); } catch (e) { }
+}
+
+// Token helpers
+function getStoredTokens() {
+    try {
+        const raw = localStorage.getItem(ACCESS.tokensStorageKey);
+        if (!raw) return [];
+        const arr = JSON.parse(raw);
+        return Array.isArray(arr) ? arr : [];
+    } catch (e) { return []; }
+}
+
+function saveStoredTokens(arr) {
+    try { localStorage.setItem(ACCESS.tokensStorageKey, JSON.stringify(arr)); } catch (e) { }
+}
+
+function getUsedTokens() {
+    try {
+        const raw = localStorage.getItem(ACCESS.usedTokensKey);
+        if (!raw) return [];
+        const arr = JSON.parse(raw);
+        return Array.isArray(arr) ? arr : [];
+    } catch (e) { return []; }
+}
+
+function saveUsedTokens(arr) {
+    try { localStorage.setItem(ACCESS.usedTokensKey, JSON.stringify(arr)); } catch (e) { }
+}
+
+function consumeToken(token) {
+    if (!token) return false;
+    const stored = getStoredTokens();
+    const used = getUsedTokens();
+    const idx = stored.indexOf(token);
+    if (idx === -1) return false; // not a valid token
+    // remove from stored and add to used
+    stored.splice(idx, 1);
+    used.push(token);
+    saveStoredTokens(stored);
+    saveUsedTokens(used);
+    // mark device as having used access (prevents re-entry if desired)
+    markAccessUsed();
+    return true;
+}
+
+// Convenience: expose a loader for admins to preload tokens via console
+window.__exam_loadTokens = function(tokens) {
+    if (!Array.isArray(tokens)) return false;
+    saveStoredTokens(tokens);
+    return true;
+}
+
+function showAccessModal(used) {
+    const modal = document.getElementById('access-modal');
+    const prompt = document.getElementById('access-prompt');
+    const input = document.getElementById('access-password-input');
+    const submit = document.getElementById('access-submit');
+    const cancel = document.getElementById('access-cancel');
+
+    if (used) {
+        prompt.textContent = 'This access code has already been used on this device. Contact the administrator.';
+        input.style.display = 'none';
+        submit.style.display = 'none';
+        cancel.textContent = 'Close';
+        cancel.addEventListener('click', () => {
+            // Keep the site blocked — hide modal but don't initialize app
+            modal.classList.add('hidden');
+        });
+        modal.classList.remove('hidden');
+        return;
+    }
+
+    modal.classList.remove('hidden');
+
+    function cleanup() {
+        submit.removeEventListener('click', onSubmit);
+        cancel.removeEventListener('click', onCancel);
+    }
+
+    function onSubmit() {
+        const val = input.value || '';
+        // First check for static password (legacy)
+        if (val === ACCESS.password) {
+            markAccessUsed();
+            cleanup();
+            modal.classList.add('hidden');
+            App.init();
+            return;
+        }
+
+        // Then check token list
+        if (consumeToken(val)) {
+            cleanup();
+            modal.classList.add('hidden');
+            App.init();
+            return;
+        }
+
+        // Not valid
+        input.value = '';
+        input.placeholder = 'Invalid token or password — try again';
+    }
+
+    function onCancel() {
+        cleanup();
+        modal.classList.add('hidden');
+    }
+
+    submit.addEventListener('click', onSubmit);
+    cancel.addEventListener('click', onCancel);
+}
+
 window.addEventListener('DOMContentLoaded', () => {
-    App.init();
+    // If already used, block further access on this browser/device.
+    if (isAccessUsed()) {
+        showAccessModal(true);
+    } else {
+        showAccessModal(false);
+    }
 });
+
+// Preload provided tokens (only if none are present).
+// Tokens list supplied by admin — stored as strings.
+(function preloadProvidedTokens() {
+    try {
+        const existing = getStoredTokens();
+        if (existing.length === 0) {
+            const provided = [
+                "1023","8471","5904","2368","7745","9182","4509","6813","3297","5641",
+                "7098","1426","8359","2910","4762","9534","6187","3049","7801","5296",
+                "8640","1735","4928","6014","7382","2591","9470","8163","3856","6249",
+                "7015","9482","1367","5820","4693","8104","2958","6471","9036","5748",
+                "1829","7603","4391","8265","5947","3108","9712","6540","2873","4186",
+                "7059","8621","3490","5963","2748","9315","6804","1572","8436","5091",
+                "7628","4905","3184","6759","9217","5460","2841","7396","1584","6047",
+                "8731","4921","7106","3659","9487","5208","6913","2740","8362","1597",
+                "6075","7829","4103","9658","5384","2916","8740","6509","1378","4926",
+                "7183","5607","9341","2865","4790","8016","3458","6924","9573","1249",
+                "8736","5098","7601","3420","6157","9842","2784","4965","8310","5609",
+                "7146","2398","6872","9450","3187","5796","8604","4920","1365","7039",
+                "8241","5984","2673","9516","4089","7352","1846","6295","8703","5462",
+                "3918","7609","2145","9831","6574","4286","5093","8417","2960","7348",
+                "1852","6907","9528","3471","5864","7102","4695","8236","1549","6071",
+                "9384","2759","8146","5902","3418","7265","4682","9537","6019","2874",
+                "8409","5196","7321","3945","9651","2478","6809","5143","8720","3068",
+                "9571","4280","6915","8402","5736","2194","7648","3950","9826","6473"
+            ];
+            saveStoredTokens(provided);
+            // mark todo item as completed
+            try { localStorage.setItem('exam_tokens_preloaded', 'true'); } catch (e) {}
+            console.log('Preloaded', provided.length, 'tokens into localStorage.');
+        }
+    } catch (e) { /* ignore */ }
+})();

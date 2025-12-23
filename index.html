@@ -148,6 +148,19 @@
         </div>
     </div>
 
+    <!-- ACCESS (SINGLE-USE PASSWORD) MODAL -->
+    <div id="access-modal" class="modal hidden">
+        <div class="modal-card">
+            <h3>Site Access</h3>
+            <p id="access-prompt">Enter the single-use access password to continue.</p>
+            <input id="access-password-input" type="password" placeholder="Enter access password" style="width:100%; padding:8px; margin-bottom:12px; border-radius:6px; border:1px solid rgba(255,255,255,0.06); background:transparent; color:white;">
+            <div class="modal-actions">
+                <button id="access-cancel" class="btn-secondary">Cancel</button>
+                <button id="access-submit" class="btn-primary">Submit</button>
+            </div>
+        </div>
+    </div>
+
     <!-- SCRIPTS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
